@@ -104,32 +104,22 @@ func generateTerraform(rgNameTf string, nsgNameTf string, nsgNameAz string, r re
 	tfCode = append(tfCode, generateSecurityRule("DenyAllOutBound", 4000, "Outbound", "Deny", "*", "*", "*")...)
 
 	// Add whitelist security rules from Zscaler api
-	tfCode = append(tfCode, appendWhitelistRules(r, 2001, 66)...)
+	tfCode = append(tfCode, appendWhitelistRules(r, 2001)...)
 
 	// Close Terraform nsg definition
 	tfCode = append(tfCode, "}")
 	writeToFile(tfCode)
 }
 
-func appendWhitelistRules(r response, priority int, protocol byte) []string {
-	// protocol = 84 = ascii T -> TCP
-	// protocol = 85 = ascii U -> UDP
-	// protocol = 66 = ascii B-> both
+func appendWhitelistRules(r response, priority int) []string {
 	var whitelistRules []string
 
 	// Iterate over all IPs and append security rules for them (TCP and UDP)
 	for i := 0; i < len(r.Content); i++ {
 		for j := 0; j < len(r.Content[i].IPs); j++ {
-			if protocol == 84 || protocol == 66 {
-				var ruleName string = "AllowZscaler" + "-" + strconv.Itoa(i+1) + "-" + strconv.Itoa(j+1) + "-Tcp"
-				whitelistRules = append(whitelistRules, generateSecurityRule(ruleName, priority, "Outbound", "Allow", "Tcp", "443", r.Content[i].IPs[j])...)
-				priority++
-			}
-			if protocol == 85 || protocol == 66 {
-				var ruleName string = "AllowZscaler" + "-" + strconv.Itoa(i+1) + "-" + strconv.Itoa(j+1) + "-Udp"
-				whitelistRules = append(whitelistRules, generateSecurityRule(ruleName, priority, "Outbound", "Allow", "Udp", "443", r.Content[i].IPs[j])...)
-				priority++
-			}
+			var ruleName string = "AllowZscaler" + "-" + strconv.Itoa(i+1) + "-" + strconv.Itoa(j+1) + "-Tcp"
+			whitelistRules = append(whitelistRules, generateSecurityRule(ruleName, priority, "Outbound", "Allow", "*", "443", r.Content[i].IPs[j])...)
+			priority++
 		}
 	}
 
