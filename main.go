@@ -119,7 +119,7 @@ func appendWhitelistRules(r response, priority int) []string {
 	for i := 0; i < len(r.Content); i++ {
 		fmt.Println("Rules are being generated for IP Block " + strconv.Itoa(i+1) + " (" + r.Content[i].DateAdded + ").")
 		for j := 0; j < len(r.Content[i].IPs); j++ {
-			var ruleName string = "AllowZscaler" + "-" + strconv.Itoa(i+1) + "-" + strconv.Itoa(j+1) + "-Tcp"
+			var ruleName string = "AllowZscaler" + "-" + strconv.Itoa(i+1) + "-" + strconv.Itoa(j+1)
 			whitelistRules = append(whitelistRules, generateSecurityRule(ruleName, priority, "Outbound", "Allow", "*", "443", r.Content[i].IPs[j])...)
 			priority++
 		}
