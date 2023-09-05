@@ -109,6 +109,7 @@ func generateTerraform(rgNameTf string, nsgNameTf string, nsgNameAz string, r re
 	// Close Terraform nsg definition
 	tfCode = append(tfCode, "}")
 	writeToFile(tfCode)
+	fmt.Println("Terraform code successfully generated!")
 }
 
 func appendWhitelistRules(r response, priority int) []string {
@@ -116,6 +117,7 @@ func appendWhitelistRules(r response, priority int) []string {
 
 	// Iterate over all IPs and append security rules for them (TCP and UDP)
 	for i := 0; i < len(r.Content); i++ {
+		fmt.Println("Rules are being generated for IP Block " + strconv.Itoa(i+1) + " (" + r.Content[i].DateAdded + ").")
 		for j := 0; j < len(r.Content[i].IPs); j++ {
 			var ruleName string = "AllowZscaler" + "-" + strconv.Itoa(i+1) + "-" + strconv.Itoa(j+1) + "-Tcp"
 			whitelistRules = append(whitelistRules, generateSecurityRule(ruleName, priority, "Outbound", "Allow", "*", "443", r.Content[i].IPs[j])...)
